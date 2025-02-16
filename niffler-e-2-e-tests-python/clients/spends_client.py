@@ -23,7 +23,18 @@ class SpendsHttpClient:
 
     def add_category(self, name: str):
         response = self.session.post(urljoin(self.base_url, '/api/categories/add'), json={
-            'category': name
+            'name': name
         })
         response.raise_for_status()
         return response.json()
+
+    def add_spends(self, body):
+        url = urljoin(self.base_url, '/api/spends/add')
+        response = self.session.post(url, json=body)
+        response.raise_for_status()
+        return response.json()
+
+    def remove_spends(self, ids: list[int]):
+        url = urljoin(self.base_url, '/api/spends/remove')
+        response = self.session.delete(url, params={'ids': ids})
+        response.raise_for_status()

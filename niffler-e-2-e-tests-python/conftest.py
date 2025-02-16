@@ -2,7 +2,7 @@ import os
 
 import pytest
 from dotenv import load_dotenv
-from selene import browser
+from selene import browser, be
 from clients.spends_client import SpendsHttpClient
 
 
@@ -56,10 +56,21 @@ def category(request, spends_client):
     return category_name
 
 
-class Pages:
-    main_page = pytest.mark.usefixtures("main_page")
+@pytest.fixture(params=[])
+def spends(request, spends_client):
+    spend = spends_client.add_spends(request.param)
+    yield spend
+    spends_client.remove_spends([spend['id']])
 
 
 @pytest.fixture()
 def main_page(auth, frontend_url):
     browser.open(frontend_url)
+
+
+@pytest.fixture()
+def delete_after_create_spend(auth, frontend_url):
+    yield
+    browser.element('//span[.="Test-category"]').should(be.visible).click()
+    browser.element('#delete').click()
+    browser.all('//button[.="Delete"]').second.click()
