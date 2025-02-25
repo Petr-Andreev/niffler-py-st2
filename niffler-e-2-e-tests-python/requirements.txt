@@ -2,3 +2,6 @@ selene>=2.0.0rc9
 pytest
 requests
 python-dotenv
+SQLAlchemy==2.0.37
+sqlmodel==0.0.22
+psycopg2-binary

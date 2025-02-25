@@ -2,45 +2,7 @@ import pytest
 from selene import browser, be, have
 from marks import Pages, TestData
 
-
-@pytest.mark.skip('Надо добавить удаление аккаунта после завершения теста')
-def test_successful_registration(registration_url, app_user):
-    username, password = app_user
-    browser.open(f"{registration_url}/login")
-    browser.element('.form__register').click()
-    browser.element('input[name=username]').set_value(username)
-    browser.element('input[name=password]').set_value(password)
-    browser.element('input[name=passwordSubmit]').set_value(password)
-    browser.element('button[type=submit]').click()
-    browser.element('.form__paragraph').should(have.text("Congratulations! You've registered!"))
-    browser.element('.form_sign-in').should(be.visible).should(be.clickable)
-
-
-# Тесты на авторизацию
-# 1. Пустой логин + пароль
-def test_unsuccessful_authorization_empty_login(frontend_url, app_user):
-    username, password = app_user
-    browser.open(frontend_url)
-    browser.element('input[name=username]').set_value('')
-    browser.element('input[name=password]').set_value(password)
-    browser.element('button[type=submit]').click()
-
-
-# 2. Пустой пароль + логин
-def test_unsuccessful_authorization_empty_password(frontend_url, app_user):
-    username, password = app_user
-    browser.open(frontend_url)
-    browser.element('input[name=username]').set_value(username)
-    browser.element('input[name=password]').set_value('')
-    browser.element('button[type=submit]').click()
-
-
-# 3. Пустой логин + пустой пароль
-def test_unsuccessful_authorization_empty_login_and_empty_password(frontend_url):
-    browser.open(frontend_url)
-    browser.element('input[name=username]').set_value('')
-    browser.element('input[name=password]').set_value('')
-    browser.element('button[type=submit]').click()
+TEST_CATEGORY = "car4"
 
 
 @Pages.main_page
@@ -135,23 +97,80 @@ def test_spending_should_be_created_specific_date_on_calendar():
     browser.element('//span[.="Test-create-category"]').should(be.visible).should(be.clickable)
 
 
-TEST_CATEGORY = 'school'
+@Pages.main_page
+@TestData.category(TEST_CATEGORY)
+@TestData.spends(
+    {
+        "amount": "100500",
+        "description": "Test_for_deleted",
+        "currency": "RUB",
+        "spendDate": "2025-02-12T15:39:41.194Z",
+        "category": {
+            "name": TEST_CATEGORY
+        }
+    }
+)
+def test_spending_should_be_deleted(category, spends):
+    # Проверяем наличие траты
+    browser.element(f'//span[.="Test_for_deleted"]').should(be.visible).click()
+    # Удаляем трату
+    browser.element('#delete').click()
+    browser.all('//button[.="Delete"]').second.click()
+    # Проверяем, что траты больше нет
+    browser.element(f'//span[.="Test_for_deleted"]').should(be.hidden)
+    # Проверяем сообщение о пустом списке трат
+    browser.element('//p[.="There are no spendings"]').should(be.visible)
 
 
 @Pages.main_page
 @TestData.category(TEST_CATEGORY)
-@TestData.spends({
-    "amount": "100500",
-    "description": "Test_for_deleted",
-    "currency": "RUB",
-    "spendDate": "2025-02-12T15:39:41.194Z",
-    "category": {
-        "name": TEST_CATEGORY
-    }
-})
-def test_spending_should_be_deleted(category, spends):
-    browser.element('//span[.="Test_for_deleted"]').should(be.visible).click()
-    browser.element('#delete').click()
-    browser.all('//button[.="Delete"]').second.click()
-    browser.element('//span[.="Test_for_deleted"]').should(be.hidden)
-    browser.element('//p[.="There are no spendings"]').should(be.visible)
+@TestData.spends_list(
+
+    [
+        {
+            "amount": "11111",
+            "description": "Test_currency",
+            "currency": "RUB",
+            "spendDate": "2025-02-12T15:39:41.194Z",
+            "category": {
+                "name": TEST_CATEGORY
+            }
+        },
+        {
+            "amount": "22222",
+            "description": "Test_currency_rub2",
+            "currency": "RUB",
+            "spendDate": "2025-02-13T15:39:41.194Z",
+            "category": {
+                "name": TEST_CATEGORY
+            }
+        },
+        {
+            "amount": "33333",
+            "description": "Test_currency_eur",
+            "currency": "EUR",
+            "spendDate": "2025-02-14T15:39:41.194Z",
+            "category": {
+                "name": TEST_CATEGORY
+            }
+        }
+    ]
+
+)
+def test_spending_should_be_deleted(category, spends_list):
+    # Проверяем наличие всех созданных трат
+    browser.element(f'//span[.="Test_currency"]').should(be.visible).click()
+
+
+
+
+
+
+# 2) Добавить несколько трат с разными названиями, проверить, что работают поиск по названию
+# 3) Загрузить фото в профиль, проверить что она загрузилась
+# 4) добавить имя в профиль, проверить, что оно сохранилось
+# 5) добавление категории вручную - нажатие ентер и проверка что категория добавилась
+# 6) изменить название категории
+# 7) добавить категорию в архив, проверка что она добавилась в архив (сдвинуть слайдер₽
+# 8) убрать из архива
+# 9) проверка логаута
