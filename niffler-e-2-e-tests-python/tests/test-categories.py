@@ -1,30 +1,36 @@
-import time
-from selene import browser, have, be
 from marks import Pages, TestData
+from pages.profile_page import app_profile_page
+from faker import Faker
 
-TEST_CATEGORY = "investments"
+fake = Faker()
+TEST_CATEGORY = fake.word()
+CATEGORY_UPDATE = fake.word()
 
 
-@Pages.main_page
+@Pages.profile_page
 def test_title_in_page():
-    time.sleep(5)
-    browser.element('[class="MuiTypography-root MuiTypography-h5 css-w1t7b3"]').should(
-        have.text('Profile'))
-    browser.element('[class ="MuiTypography-root MuiTypography-h5 css-1pam1gy"]').should(
-        have.text('Categories'))
+    app_profile_page.title_form(
+        profile='Profile',
+        categories='Categories'
+    )
 
 
-@Pages.main_page
+@Pages.profile_page
 @TestData.category(TEST_CATEGORY)
 def test_add_categories(category):
-    browser.element('[class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-2 css-3w20vr"]').should(
-        have.text("investments"))
+    app_profile_page.should_categories_name(
+        name_category=TEST_CATEGORY
+    )
 
 
-@Pages.main_page
+@Pages.profile_page
 def test_elements_present_in_page():
-    browser.element('#username').should(be.visible)
-    browser.element('#name').should(be.visible)
-    browser.element('[class="MuiTouchRipple-root css-w0pj6f"]').should(be.visible)
-    browser.element('#category').should(be.visible)
-    browser.element('.image__input-label').should(be.visible)
+    app_profile_page.should_elements_present_in_page()
+
+
+@Pages.profile_page
+@TestData.category(CATEGORY_UPDATE)
+def test_update_categories(category, categories_update):
+    app_profile_page.should_categories_update(
+        categories_update=categories_update
+    )

@@ -46,3 +46,15 @@ class SpendsHttpClient:
         url = urljoin(self.base_url, '/api/spends/remove')
         response = self.session.delete(url, params={'ids': ids})
         response.raise_for_status()
+
+    def update_spends(self, body: dict):
+        url = urljoin(self.base_url, '/api/spends/edit')
+        response = self.session.patch(url, json=body)
+        response.raise_for_status()
+        return response
+
+    def update_categories(self, body: dict):
+        url = urljoin(self.base_url, '/api/categories/update')
+        response = self.session.patch(url, json=body)
+        response.raise_for_status()
+        return response.json()
