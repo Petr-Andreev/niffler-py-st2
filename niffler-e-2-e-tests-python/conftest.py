@@ -6,12 +6,17 @@ from selene import browser, be
 from clients.spends_client import SpendsHttpClient
 from databases.spend_db import SpendDB
 from models.config import Envs
+from models.spend import SpendRequestModel, CategoryRequest
+from pages.auth_page import auth_page
+from pages.spend_page import app_spend_page
+from faker import Faker
 
 
 @pytest.fixture(scope='session')
 def envs() -> Envs:
     load_dotenv()
     return Envs(
+        profile_url=os.getenv('PROFILE_URL'),
         frontend_url=os.getenv("FRONTEND_URL"),
         gateway_url=os.getenv("GATEWAY_URL"),
         registration_url=os.getenv("REGISTRATION_URL"),
@@ -23,10 +28,11 @@ def envs() -> Envs:
 
 @pytest.fixture(scope='session')
 def auth(envs):
-    browser.open(envs.frontend_url)
-    browser.element('input[name=username]').set_value(envs.test_username)
-    browser.element('input[name=password]').set_value(envs.test_password)
-    browser.element('button[type=submit]').click()
+    auth_page.aurh_form(
+        url=envs.frontend_url,
+        username=envs.test_username,
+        password=envs.test_password
+    )
     return browser.driver.execute_script('return window.localStorage.getItem("id_token")')
 
 
@@ -44,7 +50,7 @@ def spend_bd(envs) -> SpendDB:
 def category(request, spends_client, spend_bd):
     category_name = request.param
     category = spends_client.add_category(category_name)
-    yield category.name
+    yield category
     spend_bd.delete_user_categories(category.id)
 
 
@@ -83,8 +89,52 @@ def main_page(auth, envs):
 
 
 @pytest.fixture()
-def delete_after_create_spend(auth, envs):
+def profile_page(auth, envs):
+    browser.open(envs.profile_url)
+
+
+@pytest.fixture()
+def delete_after_create_spend(request, auth, envs):
+    name_category = request.param  # Получаем имя категории из параметров
     yield
-    browser.element('//span[.="Test-category"]').should(be.visible).click()
-    browser.element('#delete').click()
-    browser.all('//button[.="Delete"]').second.click()
+    # Выполняем удаление траты после теста
+    app_spend_page.delete_spend(name_category)
+
+
+@pytest.fixture
+def spends_update(request, spends_client, spends):
+    # Получаем данные для обновления из параметров
+    update_data = request.param
+
+    # Выполняем обновление траты
+    response = spends_client.update_spends(
+        SpendRequestModel(
+            id=spends.id,
+            amount=update_data.get("amount", spends.amount),
+            description=update_data.get("description", spends.description),
+            category=CategoryRequest(name=spends.category.name).model_dump(),
+            currency=update_data.get("currency", spends.currency)
+        ).model_dump()
+    )
+
+    yield response
+
+
+@pytest.fixture()
+def categories_update(category, spends_client):
+    faker = Faker()
+    response = spends_client.update_categories(
+        {"name": faker.text(10),
+         "id": category.id
+         }
+    )
+    yield response
+    try:
+        spends_client.update_categories(
+            {"id": category.id,
+             "archived": True,
+             "name": response["name"]
+             }
+        )
+    except Exception:
+        pass
