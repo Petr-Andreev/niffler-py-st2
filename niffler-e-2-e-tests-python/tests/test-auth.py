@@ -2,7 +2,7 @@ from pages.auth_page import registration_page, auth_page
 
 
 # @pytest.mark.skip('Надо добавить удаление аккаунта после завершения теста')
-def test_successful_registration(envs):
+def test_successful_registration(envs, delete_user_from_bd):
     registration_page.registration_form(
         url=f"{envs.registration_url}/login",
         username=envs.test_username,

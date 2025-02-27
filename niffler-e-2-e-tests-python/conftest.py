@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from selene import browser, be
 from clients.spends_client import SpendsHttpClient
 from databases.spend_db import SpendDB
+from databases.user_db import UsersDB
 from models.config import Envs
 from models.spend import SpendRequestModel, CategoryRequest
 from pages.auth_page import auth_page
@@ -21,6 +22,7 @@ def envs() -> Envs:
         gateway_url=os.getenv("GATEWAY_URL"),
         registration_url=os.getenv("REGISTRATION_URL"),
         spend_db_url=os.getenv("SPEND_DB_URL"),
+        auth_db_url=os.getenv("AUTH_DB_URL"),
         test_username=os.getenv("TEST_USERNAME"),
         test_password=os.getenv("TEST_PASSWORD")
     )
@@ -44,6 +46,17 @@ def spends_client(envs, auth) -> SpendsHttpClient:
 @pytest.fixture(scope='session')
 def spend_bd(envs) -> SpendDB:
     return SpendDB(envs.spend_db_url)
+
+
+@pytest.fixture(scope='session')
+def auth_bd(envs) -> UsersDB:
+    return UsersDB(envs.auth_db_url)
+
+
+@pytest.fixture(scope='session')
+def delete_user_from_bd(request, auth_bd):
+    yield
+    auth_bd.delete_user_from_database()
 
 
 @pytest.fixture(params=[])

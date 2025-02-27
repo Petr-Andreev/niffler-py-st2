@@ -69,9 +69,9 @@ class SpendPage(BasePage):
 
     def delete_spend(self, name_category):
         self.category_name(name_category).should(be.visible).click()
-        time.sleep(1)
+        time.sleep(0.5)
         self.delete_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
         self.delete_button_approve.second.click()
 
     def should_spend_delete(self, name_category, title_text):
