@@ -74,7 +74,7 @@ class SpendPage(BasePage):
         time.sleep(0.5)
         self.delete_button_approve.second.click()
 
-    def should_spend_delete(self, name_category, title_text):
+    def verify_spend_delete(self, name_category, title_text):
         # Проверяем наличие траты
         self.category_name(name_category).should(be.visible).click()
         # Удаляем трату
@@ -85,11 +85,15 @@ class SpendPage(BasePage):
         # Проверяем сообщение о пустом списке трат
         self.no_spend_header.should(be.visible).should(have.text(title_text))
 
-    def should_spend_update(self, spends_update):
+    def verify_spend_update(self, spends_update):
         body = SpendResponseModel(**spends_update.json())
         browser.driver.refresh()
         self.menu_spendings.should(have.text(str(body.amount)))
         self.menu_spendings.should(have.text(body.description))
+
+    def verify_description_create(self, descriptions: list):
+        for desc in descriptions:
+            browser.element(f'//span[.="{desc}"]').should(be.visible).should(have.text(desc))
 
 
 app_spend_page = SpendPage()
