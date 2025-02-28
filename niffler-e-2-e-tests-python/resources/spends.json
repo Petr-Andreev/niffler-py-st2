@@ -1,0 +1,47 @@
+[
+    {
+        "amount": "33333",
+        "description": "Test_currency_eur",
+        "currency": "EUR",
+        "spendDate": "2023-02-14T15:39:41.194Z",
+        "category": {
+            "name": "list_spends"
+        }
+    },
+    {
+        "amount": "200.75",
+        "description": "Test_currency_usd",
+        "currency": "USD",
+        "spendDate": "2024-10-02T15:30:00Z",
+        "category": {
+            "name": "list_spends"
+        }
+    },
+    {
+        "amount": "2546.75",
+        "description": "Test_currency_rub",
+        "currency": "RUB",
+        "spendDate": "2025-02-14T15:39:41.194Z",
+        "category": {
+            "name": "list_spends"
+        }
+    },
+    {
+        "amount": "12345",
+        "description": "Test_currency_kzt",
+        "currency": "KZT",
+        "spendDate": "2025-02-14T15:39:41.194Z",
+        "category": {
+            "name": "list_spends"
+        }
+    },
+    {
+        "amount": "0.55",
+        "description": "Test_currency_rub2",
+        "currency": "RUB",
+        "spendDate": "2025-02-14T15:39:41.194Z",
+        "category": {
+            "name": "list_spends"
+        }
+    }
+]

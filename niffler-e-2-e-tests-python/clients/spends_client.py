@@ -58,3 +58,13 @@ class SpendsHttpClient:
         response = self.session.patch(url, json=body)
         response.raise_for_status()
         return response.json()
+
+    def verify_spends_count(self, spends_client, created_spends, expected_count):
+        all_spends = spends_client.get_spends()
+        created_spends_ids = {spend.id for spend in created_spends}
+        actual_created_spends = [spend for spend in all_spends if spend.id in created_spends_ids]
+        if len(actual_created_spends) != expected_count:
+            raise AssertionError(
+                f"Ожидаем {expected_count} созданных трат, но найдено {len(actual_created_spends)}. "
+                f"Создано трат IDs: {[s.id for s in actual_created_spends]}"
+            )

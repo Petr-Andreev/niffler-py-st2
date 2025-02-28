@@ -77,7 +77,7 @@ def spends(request, spends_client):
 
 
 @pytest.fixture
-def spends_list(request, spends_client):
+def spends_list(request, category, spends_client):
     # Получаем список JSON-объектов из параметров
     spend_data_list = request.param
 
@@ -86,6 +86,9 @@ def spends_list(request, spends_client):
         # Создаем каждую трату
         test_spend = spends_client.add_spends(spend_data)
         created_spends.append(test_spend)
+
+    # Проверка: количество созданных трат через API должно совпадать с len(test_spends_data)
+    spends_client.verify_spends_count(spends_client, created_spends, len(spend_data_list))
 
     yield created_spends  # Возвращаем список созданных трат
 
